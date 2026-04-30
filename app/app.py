@@ -1,6 +1,22 @@
-from flask import Flask, render_template, redirect, url_for, request  # type: ignore
+from flask import Flask, render_template, redirect, url_for, request # type: ignore
+import sqlite3
 
 app = Flask(__name__)
+
+def init_db():
+    conn = sqlite3.connect("users.db")
+    c = conn.cursor()
+    c.execute("""
+        CREATE TABLE  IF NOT EXISTS auth (
+        "id"	INTEGER,
+        "username"	TEXT,
+        "password"	TEXT,
+        PRIMARY KEY("id" AUTOINCREMENT)
+    );
+    """)
+    conn.commit()
+    conn.close()
+
 
 gusername = ""
 gpassword = ""
