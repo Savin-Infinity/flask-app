@@ -3,6 +3,14 @@ import sqlite3
 
 app = Flask(__name__)
 
+
+## Database connection ##
+def get_db_connection():
+    conn = sqlite3.connect("users.db")
+    return conn
+
+
+## Database initialization ##
 def init_db():
     conn = sqlite3.connect("users.db")
     c = conn.cursor()
@@ -17,40 +25,47 @@ def init_db():
     conn.commit()
     conn.close()
 
-
-gusername = ""
-gpassword = ""
-
-
+## Home route ##
 @app.route("/")
 def home():
     return render_template("home.html")
 
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        if username == gusername and password == gpassword:
-            return redirect(url_for("dashboard"))
-        else:
-            return render_template("login.html")
-    return render_template("login.html")
-
-
+##Registration route ##
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        global gusername, gpassword
-        gusername = username
-        gpassword = password
+        conn = get_db_connection()
+        conn.execute(
+            "INSERT INTO users (username, password) VALUES (?, ?)",
+            (username, password)
+        )
+        conn.commit()
+        conn.close()
         return redirect(url_for("login"))
     return render_template("register.html")
 
 
+##Login route ##
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        conn = get_db_connection()
+        user = conn.execute(
+            "SELECT * FROM users WHERE username = ? AND password = ?",
+            (username, password)
+        ).fetchone()
+        conn.close()
+        if user:
+            return redirect(url_for("dashboard"))
+    return render_template("login.html")
+
+
+## Dashboard route##
 @app.route("/dashboard")
 def dashboard():
     return render_template("dashboard.html")
