@@ -6,13 +6,13 @@ app = Flask(__name__)
 
 ## Database connection ##
 def get_db_connection():
-    conn = sqlite3.connect("users.db")
+    conn = sqlite3.connect("app\\database\\users.db")
     return conn
 
 
 ## Database initialization ##
 def init_db():
-    conn = sqlite3.connect("users.db")
+    conn = sqlite3.connect("app\\database\\users.db")
     c = conn.cursor()
     c.execute("""
         CREATE TABLE  IF NOT EXISTS users (
